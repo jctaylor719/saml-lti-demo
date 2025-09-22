@@ -1,7 +1,8 @@
+// app/auth/saml/acs/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import * as saml from "samlify";
 import { getSP } from "@/lib/saml";
-import { pool } from "@/lib/db";
+import { pool } from "@/lib/db"; // using named export from lib/db
 import { setSessionCookie } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -51,14 +52,15 @@ export async function POST(req: NextRequest) {
     // Set session cookie
     await setSessionCookie({ email, iat: Math.floor(Date.now() / 1000) });
 
-    // Redirect to /me
-    return NextResponse.redirect(new URL("/me", req.url));
+    // Force redirect to production /me
+    return NextResponse.redirect("https://saml-lti-demo.onrender.com/me");
   } catch (err) {
     console.error("ACS error:", err);
     return NextResponse.json({ error: "ACS failure" }, { status: 500 });
   }
 }
 
+// Block GET
 export async function GET() {
   return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }
