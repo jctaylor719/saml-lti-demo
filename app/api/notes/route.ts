@@ -24,10 +24,12 @@ export async function POST(req: Request) {
     );
 
     return new Response(null, { status: 201 });
-  } catch (err: any) {
-    return new Response(
-      JSON.stringify({ error: err?.message ?? "invalid request" }),
-      { status: 400, headers: { "content-type": "application/json" } }
-    );
-  }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "invalid request";
+    return new Response(JSON.stringify({ error: message }), {
+        status: 400,
+        headers: { "content-type": "application/json" },
+    });
+    }
+
 }
