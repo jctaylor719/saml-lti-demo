@@ -1,103 +1,144 @@
-import Image from "next/image";
+// app/page.tsx
+import Link from "next/link";
+import { getSession } from "@/lib/session";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+function Card({
+  title,
+  href,
+  description,
+  cta = "Open",
+  external = false,
+}: {
+  title: string;
+  href: string;
+  description: string;
+  cta?: string;
+  external?: boolean;
+}) {
+  const content = (
+    <div className="flex h-full flex-col justify-between rounded-2xl border p-5 shadow-sm transition hover:shadow-md">
+      <div>
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="mt-2 text-sm text-gray-600">{description}</p>
+      </div>
+      <div className="mt-4">
+        <span className="inline-flex items-center rounded-lg border px-3 py-1 text-sm">
+          {cta} <span className="ml-1">→</span>
+        </span>
+      </div>
     </div>
+  );
+
+  return external ? (
+    <a href={href} className="h-full" target="_blank" rel="noreferrer">
+      {content}
+    </a>
+  ) : (
+    <Link href={href} className="h-full">
+      {content}
+    </Link>
+  );
+}
+
+export default async function HomePage() {
+  const session = await getSession();
+
+  return (
+    <main className="mx-auto max-w-5xl px-6 py-10">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold">SAML + LTI + Postgres Demo</h1>
+        <p className="mt-2 text-gray-600">
+          Portfolio showcase for a Technical Support Engineer role: SAML SSO,
+          session handling, PostgreSQL APIs, and a minimal LTI launch tester.
+        </p>
+
+        {/* Login status */}
+        <div className="mt-4 inline-flex items-center gap-3 rounded-xl border px-3 py-2">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              session?.email ? "bg-emerald-500" : "bg-gray-300"
+            }`}
+          />
+          {session?.email ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm">Signed in as</span>
+              <span className="text-sm font-medium">{session.email}</span>
+              <a
+                className="rounded-lg border px-2 py-1 text-sm hover:bg-gray-50"
+                href="/auth/logout"
+              >
+                Log out
+              </a>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="text-sm">Not signed in</span>
+              <a
+                className="rounded-lg border px-2 py-1 text-sm hover:bg-gray-50"
+                href="/auth/saml/login"
+              >
+                SAML Login
+              </a>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Grid of demo areas */}
+      <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <Card
+          title="Notes (Postgres CRUD)"
+          href="/notes"
+          description="Simple page backed by Neon Postgres. Lists notes and posts new ones via /api/notes with Zod validation."
+          cta="Open /notes"
+        />
+        <Card
+          title="SAML: Login"
+          href="/auth/saml/login"
+          description="Starts the SAML flow (Okta). After a successful assertion, the ACS sets a session and redirects to /me."
+          cta="Start login"
+        />
+        <Card
+          title="SAML: Who am I?"
+          href="/me"
+          description="Protected page that reads the signed cookie and shows the authenticated user’s email."
+          cta="Open /me"
+        />
+        <Card
+          title="SAML: SP Metadata (XML)"
+          href="/auth/saml/metadata"
+          description="Service Provider metadata endpoint. Use this in your IdP (Okta) SAML settings."
+          cta="View metadata"
+        />
+        <Card
+          title="API: DB Health"
+          href="/api/db/health"
+          description="Tiny health endpoint to confirm the server can reach Postgres."
+          cta="Call /api/db/health"
+        />
+        <Card
+          title="LTI 1.3 Launch Tester"
+          href="/lti/launch"
+          description="Paste an id_token (JWT) and POST to decode (and later verify) LTI launch claims."
+          cta="Open /lti/launch"
+        />
+      </section>
+
+      {/* Footnotes / usage tips */}
+      <section className="mt-10 space-y-2 text-sm text-gray-600">
+        <p>
+          • SAML env: <code>SAML_SP_ENTITY_ID</code>, <code>SAML_SP_ACS</code>,{" "}
+          <code>SAML_IDP_METADATA_URL</code>, <code>SESSION_SECRET</code>
+        </p>
+        <p>
+          • DB: <code>DATABASE_URL</code> (Neon, with{" "}
+          <code>sslmode=require</code>)
+        </p>
+        <p>
+          • LTI (optional): <code>LTI_ISSUER</code>, <code>LTI_AUDIENCE</code>,{" "}
+          <code>LTI_JWKS_URL</code> (verification step can be added later)
+        </p>
+      </section>
+    </main>
   );
 }
