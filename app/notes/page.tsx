@@ -1,5 +1,6 @@
 "use client";
 
+import BackHomeButton from "@/components/BackHomeButton";
 import { useEffect, useState } from "react";
 
 type Note = {
@@ -73,6 +74,8 @@ export default function NotesPage() {
           </div>
         ))}
       </div>
+
+      <BackHomeButton />
     </div>
   );
 }
