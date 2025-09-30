@@ -68,10 +68,10 @@ export async function POST(req: NextRequest) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Signing you in…</title>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-black text-white">
-  <main class="text-center">
-    <h1 class="text-2xl font-bold">Signing you in…</h1>
-    <p class="mt-2 text-gray-300">Please wait a moment.</p>
+<body style="margin:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh">
+  <main>
+    <h1>Signing you in…</h1>
+    <p>Please wait a moment.</p>
   </main>
 
   <script>window.location.replace(${JSON.stringify(target)});</script>
