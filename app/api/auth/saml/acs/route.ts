@@ -1,8 +1,8 @@
-// app/auth/saml/acs/route.ts
+// app/api/auth/saml/acs/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import * as saml from "samlify";
 import { getSP } from "@/lib/saml";
-import { pool } from "@/lib/db"; // using named export from lib/db
+import { pool } from "@/lib/db";
 import { setSessionCookie } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -26,11 +26,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing SAMLResponse" }, { status: 400 });
     }
 
+    // Build IdP/SP from metadata and env
     const idpUrl = process.env.SAML_IDP_METADATA_URL!;
     const xml = await (await fetch(idpUrl)).text();
     const idp = saml.IdentityProvider({ metadata: xml });
     const sp = getSP();
 
+    // Parse SAMLResponse
     const { extract } = await sp.parseLoginResponse(idp, "post", {
       body: { SAMLResponse: samlResponse },
     });
@@ -46,21 +48,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No email/NameID in assertion" }, { status: 400 });
     }
 
+    // Upsert user
     await ensureUsersTable();
-    await pool.query(`INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING`, [email]);
+    await pool.query(
+      `INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING`,
+      [email]
+    );
 
-    // Set session cookie
+    // Set the session cookie for this user
     await setSessionCookie({ email, iat: Math.floor(Date.now() / 1000) });
 
-    // Force redirect to production /me
-    return NextResponse.redirect("https://saml-lti-demo.onrender.com/me");
+    // Respond with 200 HTML that then navigates to /me on the same origin
+    const target = new URL("/me", req.url).toString();
+    const html = `<!doctype html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>Signing you in…</title>
+</head>
+<body>
+  <p>Signing you in…</p>
+  <script>window.location.replace(${JSON.stringify(target)});</script>
+  <noscript><meta http-equiv="refresh" content="0; url=${target}"></noscript>
+</body></html>`;
+
+    return new NextResponse(html, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (err) {
     console.error("ACS error:", err);
     return NextResponse.json({ error: "ACS failure" }, { status: 500 });
   }
 }
 
-// Block GET
 export async function GET() {
   return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }
