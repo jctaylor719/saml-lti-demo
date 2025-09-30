@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     await setSessionCookie({ email, iat: Math.floor(Date.now() / 1000) });
 
     // Respond with 200 HTML that then navigates to /me on the same origin
-    const target = new URL("/me", req.url).toString();
+    const target = "https://saml-lti-demo.onrender.com/me";
     const html = `<!doctype html>
 <html><head>
   <meta charset="utf-8" />
