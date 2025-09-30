@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
+import BackHomeButton from "@/components/BackHomeButton";
 
 export default async function MePage() {
   const session = await getSession();
@@ -20,6 +21,7 @@ export default async function MePage() {
       >
         Log out
       </a>
+      <BackHomeButton />
     </main>
   );
 }

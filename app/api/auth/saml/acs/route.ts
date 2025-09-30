@@ -61,16 +61,28 @@ export async function POST(req: NextRequest) {
     // Respond with 200 HTML that then navigates to /me on the same origin
     const target = "https://saml-lti-demo.onrender.com/me";
     const html = `<!doctype html>
-<html><head>
+<html lang="en">
+<head>
   <meta charset="utf-8" />
   <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Signing you in…</title>
 </head>
-<body>
-  <p>Signing you in…</p>
+<body class="min-h-screen bg-white text-gray-900">
+  <main class="mx-auto max-w-5xl px-6 py-10">
+    <h1 class="text-3xl font-bold">SAML + LTI + Postgres Demo</h1>
+    <p class="mt-2 text-gray-600">Signing you in…</p>
+
+    <div class="mt-6 rounded-2xl border p-5 shadow-sm">
+      <h2 class="text-lg font-semibold">Please wait</h2>
+      <p class="mt-2 text-sm text-gray-600">Redirecting to your dashboard…</p>
+    </div>
+  </main>
+
   <script>window.location.replace(${JSON.stringify(target)});</script>
   <noscript><meta http-equiv="refresh" content="0; url=${target}"></noscript>
-</body></html>`;
+</body>
+</html>`;
 
     return new NextResponse(html, {
       status: 200,
